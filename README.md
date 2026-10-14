@@ -1,1 +1,1 @@
-# cs002_build_rag_apps
+# CS002: Build RAG Applications: Get Started
