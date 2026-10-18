@@ -1,6 +1,10 @@
 # Runtime
 gradio==6.30.0
 python-dotenv
+requests
+torch
+torchvision
+transformers
 
 # Tooling
 commitizen

@@ -36,3 +36,7 @@ def output_path(script: str, filename: str) -> Path:
     path = lesson.parent / "output" / lesson.stem / filename
     path.parent.mkdir(parents=True, exist_ok=True)
     return path
+
+
+# Hugging Face image captioning model used by the Gradio lessons.
+BLIP_MODEL = "Salesforce/blip-image-captioning-base"
