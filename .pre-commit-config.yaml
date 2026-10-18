@@ -47,6 +47,8 @@ repos:
     rev: v4.19.2
     hooks:
       - id: commitizen
+        # Enforce Conventional Commits format AND a short subject line.
+        # -l 72 limits the first line (header) to the Git hard limit of 72 chars.
         entry: cz --config devtools/pyproject.toml check
-        args: [--allow-abort, --commit-msg-file]
+        args: [--allow-abort, -l, "72", --commit-msg-file]
         stages: [commit-msg]
