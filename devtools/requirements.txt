@@ -1,4 +1,5 @@
 # Runtime
+gradio==6.30.0
 python-dotenv
 
 # Tooling
