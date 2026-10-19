@@ -40,3 +40,12 @@ def output_path(script: str, filename: str) -> Path:
 
 # Hugging Face image captioning model used by the Gradio lessons.
 BLIP_MODEL = "Salesforce/blip-image-captioning-base"
+
+# Local RAG stack: Ollama and Chroma run in Docker (lessons/module02/03_qa_bot_with_local_qwen3/compose.yaml).
+OLLAMA_URL = "http://localhost:11434"
+CHROMA_HOST = "localhost"
+CHROMA_PORT = 8000
+
+# Qwen3-8B Q8_0 with the chat template fixed so thinking can be turned off, built from the lesson's Modelfile.
+QWEN3_RAG_MODEL = "qwen3-8b-rag"
+QWEN3_EMBEDDING_MODEL = "hf.co/Qwen/Qwen3-Embedding-0.6B-GGUF:Q8_0"

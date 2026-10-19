@@ -25,6 +25,23 @@ lessons/module02/output/01_getting_started_with_gradio/   # what it generates (o
 - Module folders are zero padded: `module02`, never `module2`.
 - A new module folder needs no configuration.
 
+### Lesson folders
+
+A lesson that ships extra files (a `compose.yaml`, a `Modelfile`, ...) gets a
+folder named after its stem, holding the notes, the script and those files:
+
+```
+lessons/module02/03_qa_bot_with_local_qwen3/
+    03_qa_bot_with_local_qwen3.md     # notes
+    03_qa_bot_with_local_qwen3.py     # the script
+    compose.yaml                      # local services the script talks to
+    Modelfile
+```
+
+It is still a lesson script, not a self-contained project (no `pyproject.toml`):
+all the rules here apply, it uses the root `.venv` and imports `app.config`.
+Model ids and service URLs for local services go in `app/config/envs.py` too.
+
 ### Self-contained projects
 
 A folder under `lessons/` that holds its own `pyproject.toml` (e.g.

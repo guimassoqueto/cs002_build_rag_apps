@@ -69,6 +69,23 @@ reading, under `output/` (gitignored - rerun the lesson to recreate them).
 Module folders are zero padded (`module02`, not `module2`) so they keep sorting
 correctly past module 9.
 
+A lesson that needs extra files gets its own folder, named like the notes, with
+everything inside it, e.g. `lessons/module02/03_qa_bot_with_local_qwen3/` holds
+the notes, the script, a `compose.yaml` and a `Modelfile`. It still uses the root
+`.venv` and `app/config`.
+
+## Local model stack (Docker)
+
+`lessons/module02/03_qa_bot_with_local_qwen3/` runs a RAG bot with no cloud API:
+Qwen3-8B and Qwen3-Embedding-0.6B served by Ollama, and a Chroma vector database,
+both in Docker. Requires Docker with the Compose plugin; for GPU acceleration also
+the NVIDIA Container Toolkit (the lesson notes explain why and how).
+
+Setup, run, configuration and troubleshooting are in
+[the lesson's README](lessons/module02/03_qa_bot_with_local_qwen3/README.md).
+Models and vectors live in Docker volumes, so after the one-time setup everything
+works offline.
+
 ## Self-contained projects
 
 Some lessons are full apps instead of single scripts, e.g.

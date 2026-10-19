@@ -1,0 +1,31 @@
+name: qabot
+
+services:
+  ollama:
+    image: ollama/ollama:0.40.6
+    ports:
+      - "127.0.0.1:11434:11434"
+    volumes:
+      - ollama:/root/.ollama
+    environment:
+      OLLAMA_KEEP_ALIVE: 30m
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  chroma:
+    image: chromadb/chroma:1.5.9
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - chroma:/data
+    environment:
+      ANONYMIZED_TELEMETRY: "False"
+
+volumes:
+  ollama:
+  chroma:

@@ -1,5 +1,10 @@
 # Runtime
+chromadb
 gradio==6.30.0
+langchain-chroma
+langchain-core
+langchain-ollama
+langchain-text-splitters
 python-dotenv
 requests
 torch
