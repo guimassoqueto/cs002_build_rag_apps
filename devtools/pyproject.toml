@@ -1,6 +1,10 @@
 [tool.ruff]
 line-length = 120
 target-version = "py314"
+# Self-contained projects under lessons/ lint themselves with their own pyproject.toml
+extend-exclude = [
+    "lessons/module03/04_icebreaker_bot_with_local_qwen3",
+]
 
 [tool.ruff.lint]
 select = [

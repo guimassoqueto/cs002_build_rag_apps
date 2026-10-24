@@ -1,0 +1,50 @@
+[project]
+name = "icebreaker-bot"
+version = "0.1.0"
+description = "LinkedIn icebreaker bot: RAG with LlamaIndex and a local Qwen3 served by Ollama"
+requires-python = ">=3.14"
+dependencies = [
+    "llama-index-core",
+    "llama-index-llms-ollama",
+    "llama-index-embeddings-ollama",
+    "llama-index-readers-web",
+    "requests",
+    "python-dotenv",
+    "gradio==6.30.0",
+]
+
+[project.optional-dependencies]
+dev = ["ruff"]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = ["app", "config", "main"]
+packages = ["modules"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py314"
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # Pyflakes
+    "I",      # isort
+    "B",      # flake8-bugbear
+    "C4",     # flake8-comprehensions
+    "UP",     # pyupgrade
+]
+
+[tool.ruff.lint.per-file-ignores]
+"config.py" = ["E501"]  # the prompt templates are long lines of prose
+
+[tool.ruff.lint.isort]
+known-first-party = ["config", "modules"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"

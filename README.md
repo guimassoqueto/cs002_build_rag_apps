@@ -89,10 +89,12 @@ works offline.
 ## Self-contained projects
 
 Some lessons are full apps instead of single scripts, e.g.
-`lessons/module03/04_genai_flask_app/`. Each one has its own venv, `pyproject.toml`,
+`lessons/module03/04_icebreaker_bot_with_local_qwen3/` (a LlamaIndex RAG bot on a
+local Qwen3, with its own Ollama in Docker). Each one has its own venv, `pyproject.toml`,
 `Makefile`, `.env` and README, and it does not use the playground's `.venv` or
 `app/config`. Set it up and run it from inside its own folder. The root ruff config
-excludes these folders, because each project lints itself.
+excludes these folders (`extend-exclude` in `devtools/pyproject.toml`), because each
+project lints itself.
 
 ## Adding a lesson
 
