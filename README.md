@@ -1,6 +1,6 @@
 # CS002: Build RAG Applications: Get Started
 
-Certificate available at:
+Certificate available at: https://www.coursera.org/account/accomplishments/verify/ADCW0A8P1BMJ
 
 ## Requirements
 
