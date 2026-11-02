@@ -22,7 +22,7 @@ working offline once set up.
 ## Requirements
 
 - Docker Engine with the Compose plugin (`docker compose version`)
-- The repo's Python environment (`make venv && make install` from the repo root)
+- The repo's Python environment (`make install` from the repo root)
 - About 12 GB of free disk for the images and models
 - Recommended: an NVIDIA GPU (the app was tested on 16 GB; it uses about 11 GB)
 
@@ -80,7 +80,7 @@ ignores "thinking off", so the model's reasoning would leak into every answer.
 2. Start the app **from the repo root**, so `app.config` can be imported:
 
    ```bash
-   PYTHONPATH=. .venv/bin/python lessons/module02/03_qa_bot_with_local_qwen3/03_qa_bot_with_local_qwen3.py
+   make lesson LESSON=lessons/module02/03_qa_bot_with_local_qwen3/03_qa_bot_with_local_qwen3.py
    ```
 
    In PyCharm, just run the file; it already puts the repo root on the path.
@@ -134,6 +134,6 @@ docker compose down -v   # also delete the volumes: setup must be redone
 | `model "qwen3-8b-rag" not found`                          | Redo setup step 3 (also needed after `docker compose down -v`)                    |
 | Answers contain reasoning text or a `</think>`            | `QWEN3_RAG_MODEL` points at the raw `hf.co/...` model; use `qwen3-8b-rag`        |
 | `Could not connect to a Chroma server` / connection refused | The services are down: `docker compose up -d`, then `docker compose logs`      |
-| `ModuleNotFoundError: No module named 'app'`              | Run from the repo root with `PYTHONPATH=.`                                        |
+| `ModuleNotFoundError: No module named 'app'`              | Run it with `make lesson` from the repo root (it sets `PYTHONPATH=.`)             |
 | `Cannot find empty port` / port 7860 in use               | Another app instance is still running; stop it                                    |
 | Out of GPU memory                                         | Lower `num_ctx`, or use `Q4_K_M` (see Configuration)                              |

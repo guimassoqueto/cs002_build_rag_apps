@@ -4,6 +4,20 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+DEFAULT_MAX_TOKENS = 1024
+
+# Hugging Face image captioning model (BLIP): module02/02
+BLIP_MODEL = "Salesforce/blip-image-captioning-base"
+
+# Local RAG stack: Ollama and Chroma run in Docker (lessons/module02/03_qa_bot_with_local_qwen3/compose.yaml).
+OLLAMA_URL = "http://localhost:11434"
+CHROMA_HOST = "localhost"
+CHROMA_PORT = 8000
+
+# Qwen3-8B Q8_0 with the chat template fixed so thinking can be turned off, built from the lesson's Modelfile.
+QWEN3_RAG_MODEL = "qwen3-8b-rag"
+QWEN3_EMBEDDING_MODEL = "hf.co/Qwen/Qwen3-Embedding-0.6B-GGUF:Q8_0"
+
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 LESSONS_DIR = PROJECT_ROOT / "lessons"
 
@@ -36,16 +50,3 @@ def output_path(script: str, filename: str) -> Path:
     path = lesson.parent / "output" / lesson.stem / filename
     path.parent.mkdir(parents=True, exist_ok=True)
     return path
-
-
-# Hugging Face image captioning model used by the Gradio lessons.
-BLIP_MODEL = "Salesforce/blip-image-captioning-base"
-
-# Local RAG stack: Ollama and Chroma run in Docker (lessons/module02/03_qa_bot_with_local_qwen3/compose.yaml).
-OLLAMA_URL = "http://localhost:11434"
-CHROMA_HOST = "localhost"
-CHROMA_PORT = 8000
-
-# Qwen3-8B Q8_0 with the chat template fixed so thinking can be turned off, built from the lesson's Modelfile.
-QWEN3_RAG_MODEL = "qwen3-8b-rag"
-QWEN3_EMBEDDING_MODEL = "hf.co/Qwen/Qwen3-Embedding-0.6B-GGUF:Q8_0"

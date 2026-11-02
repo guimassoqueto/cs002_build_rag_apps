@@ -4,70 +4,100 @@ Certificate available at: https://www.coursera.org/account/accomplishments/verif
 
 ## Requirements
 
-- Python 3.14.7 (see `.tool-versions`)
-## Requirements
+- [asdf](https://asdf-vm.com) with the `python` and `uv` plugins. `.tool-versions` pins
+  Python 3.14.7 and uv; `asdf install` installs both.
+- [npx skills](https://github.com/vercel-labs/skills) to load the required project skills
+- Docker with Compose, for lessons that run local services (Ollama, Chroma)
 
-- Python 3.14.7 (see `.tool-versions`)
+asdf provides Python and uv; uv installs the dependencies into `.venv` with that Python
+and never downloads one of its own (`python-preference = "only-system"` in
+`pyproject.toml`). To change Python, edit `.tool-versions` and run `asdf install`: the
+Makefile hands uv that version, so `make install` rebuilds `.venv` with it.
 
 ## Setup
 
 ```bash
-make venv       # create .venv
 make env        # copy devtools/.env.sample to .env (won't overwrite an existing one)
-make install    # install dependencies and the git hooks
+make install    # create .venv with the locked dependencies, install the git hooks and the ai skills
 ```
 
+Dependencies are declared unpinned in `pyproject.toml` (tooling in the `dev` group) and
+locked to exact versions in `uv.lock`. `uv add --raw <package>` (plus `--dev` for
+tooling) records a new one in both and installs it; `--raw` keeps it unpinned, where
+plain `uv add` would write a `>=` bound. `uv remove <package>` takes it out. `.venv` has
+no pip, so a `pip install` would land in asdf's global Python. torch and torchvision
+come from PyTorch's CPU-only index (`[tool.uv.sources]`), without the CUDA libraries.
+
+When a lesson needs an API key, it is listed in `devtools/.env.sample`: put its
+value in `.env`.
 
 On commit, the pre-commit hook fixes the staged files (trailing whitespace, final
 newline, `ruff check --fix`, `ruff format`) and re-stages the fixes, so the commit only
 fails on issues that cannot be fixed automatically. A file with extra unstaged edits is
 not re-staged (that would clash with pre-commit's stash): stage the whole file and
-commit again.
+commit again. The commit message must be a conventional commit (`feat: ...`,
+`chore: ...`) with a header of at most 72 characters.
 
 ## Usage
 
 | Command                     | Does                                                        |
 | --------------------------- | ----------------------------------------------------------- |
 | `make main`                 | Run `main.py`                                               |
+| `make lesson LESSON=<path>` | Run one lesson script                                       |
 | `make clean-output`         | Delete every generated `output/` folder under `lessons/`    |
 | `make lint`                 | Lint and format, applying fixes                             |
 | `make lint-check`           | Lint and format checks only, no writes                      |
 | `make commit`               | Commit through commitizen (conventional commit messages)    |
 | `make hooks`                | (Re)install the pre-commit and commit-msg hooks             |
 | `make update-hooks`         | Bump the pinned hook revisions in `.pre-commit-config.yaml` |
-| `make check-updates`        | List outdated dependencies                                  |
-| `make reinstall`            | Force a clean reinstall of all dependencies                 |
+| `make check-updates`        | List what `make update` would upgrade, changing nothing     |
+| `make update`               | Upgrade all dependencies to their latest versions           |
+| `make reinstall`            | Delete `.venv` and run `make install` again                 |
 
 ## Layout
 
 ```
 lessons/             # the course: notes, scripts and generated files, by module
-app/config/envs.py   # API key, model defaults, notes/output path mapping
+app/config/envs.py   # model settings, notes/output path mapping
 main.py              # entry point
-devtools/            # requirements, tool config (ruff, commitizen), .env.sample
+pyproject.toml       # dependencies and tool config (uv, ruff, commitizen)
+uv.lock              # exact dependency versions, written by uv
+devtools/            # .env.sample, pre-commit fixer script
+.agents/skills/      # agent skills (lesson-script)
+.claude/skills/      # symlinks to .agents/skills, for Claude Code
 ```
 
 ## Lessons
 
-Each lesson keeps its notes, its script and its results together:
+Each lesson keeps its notes, its script and its results together. Module folders are
+zero padded (`module02`, not `module2`) so they keep sorting past module 9.
 
 ```
 lessons/
   module02/
-    01_langchain_core_concepts.md      # the notes
-    01_langchain_core_concepts.py      # the LangChain script written from them
+    01_getting_started_with_gradio.md      # the notes (you write these)
+    01_getting_started_with_gradio.py      # the script (the lesson-script skill writes it)
     output/
-      01_langchain_core_concepts/      # whatever that script generates
-        concepts.json
-        message_types.csv
+      01_getting_started_with_gradio/       # what the script generates, if anything (gitignored)
 ```
 
-The notes and the script share a name, so they sit side by side in the file tree
-and one fuzzy-find turns up both. Generated files stay in the module you are
-reading, under `output/` (gitignored - rerun the lesson to recreate them).
+Write the notes, then call the skill with their path:
 
-Module folders are zero padded (`module02`, not `module2`) so they keep sorting
-correctly past module 9.
+```
+/lesson-script lessons/module02/01_getting_started_with_gradio.md    # Claude Code, Cursor, Copilot
+$lesson-script lessons/module02/01_getting_started_with_gradio.md    # Codex
+```
+
+The script finds its notes and output folder through `app/config/envs.py`, so it holds
+no paths or model ids. Run it with:
+
+```bash
+make lesson LESSON=lessons/module02/01_getting_started_with_gradio.py
+```
+
+A Gradio lesson ends in `launch()`, which serves its app on http://127.0.0.1:7860 until
+you stop it with Ctrl+C. Lessons that use a pretrained model (BLIP, ResNet-18)
+download it on their first run.
 
 A lesson that needs extra files gets its own folder, named like the notes, with
 everything inside it, e.g. `lessons/module02/03_qa_bot_with_local_qwen3/` holds
@@ -90,30 +120,19 @@ works offline.
 
 Some lessons are full apps instead of single scripts, e.g.
 `lessons/module03/04_icebreaker_bot_with_local_qwen3/` (a LlamaIndex RAG bot on a
-local Qwen3, with its own Ollama in Docker). Each one has its own venv, `pyproject.toml`,
-`Makefile`, `.env` and README, and it does not use the playground's `.venv` or
-`app/config`. Set it up and run it from inside its own folder. The root ruff config
-excludes these folders (`extend-exclude` in `devtools/pyproject.toml`), because each
-project lints itself.
+local Qwen3, with its own Ollama in Docker). Each one has its own venv,
+`pyproject.toml`, `Makefile`, `.env` and README, and it does not use the root `.venv`
+or `app/config`. Set it up and run it from inside its own folder. Add the folder to
+`extend-exclude` in the root `pyproject.toml`, because each project lints itself.
 
-## Adding a lesson
+## Agents
 
-Drop the notes in `lessons/moduleNN/<nn>_<name>.md`. Nothing else needs wiring:
-a script written beside it finds its own notes and output directory through
-`app/config/envs.py`:
+`AGENTS.md` holds the always-loaded instructions for coding agents; `CLAUDE.md` only
+imports it (`@AGENTS.md`), so edit `AGENTS.md`. Skills use the
+[Agent Skills](https://agentskills.io) format in `.agents/skills/<name>/`, read by
+Codex, Cursor and Copilot. Claude Code reads `.claude/skills/` instead, so each skill
+gets a symlink there:
 
-- `doc_path(__file__)` -> the `.md` next to the script
-- `output_path(__file__, "concepts.json")` -> where to write a generated file,
-  with the directory already created
-
-So a lesson script holds only LangChain code - no paths, no model ids. Results
-that are just text go to the terminal; anything file-shaped (`.json`, `.csv`,
-`.md`, ...) goes under `output/`.
-
-Tool configuration lives in `devtools/pyproject.toml`; every command that needs it
-passes `--config devtools/pyproject.toml`.
-
-`AGENTS.md` holds the instructions for coding agents (Codex, Copilot, Cursor,
-...): the layout contract, how a lesson script is written, and how to verify one
-without making billed API calls. `CLAUDE.md` only imports it (`@AGENTS.md`), so
-Claude Code loads the same file. Edit `AGENTS.md`, never `CLAUDE.md`.
+```bash
+ln -s ../../.agents/skills/<name> .claude/skills/<name>
+```
